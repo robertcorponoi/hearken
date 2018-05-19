@@ -1,0 +1,23 @@
+{
+  "name": "hearken",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node_modules/.bin/mocha"
+  },
+  "keywords": [
+    "timer",
+    "countdown",
+    "events"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/robertcorponoi/hearken"
+  },
+  "author": "Robert Corponoi",
+  "license": "MIT",
+  "devDependencies": {
+    "mocha": "^5.1.1"
+  }
+}
