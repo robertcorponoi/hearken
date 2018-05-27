@@ -3,6 +3,7 @@
 module.exports = {
     /**
      * Takes a time in milliseconds and converts it to a time string format.
+     * @private
      * @param {string} ms - The time to convert in milliseconds.
      * @returns {string}
      */
@@ -18,6 +19,7 @@ module.exports = {
 
     /**
      * Takes a time in string format and converts it to milliseconds.
+     * @private
      * @param {string} time - The time to convert in a string format.
      * @returns {string}
      */
@@ -44,6 +46,7 @@ module.exports = {
 
     /**
      * Add a leading zero to a time unit if it is below 10.
+     * @private
      * @param {number} time - An integer provided by converting milliseconds to different formats.
      * @returns {string}
      */
@@ -56,6 +59,7 @@ module.exports = {
 
     /**
      * Almost all timer events have the same basic pieces of information so we build them here.
+     * @private
      * @param {string} startTime - The time in ms that the timer started.
      * @param {string} currentTime - The time in ms when the event is hit.
      * @param {string} [other=null] - Some events emit extra information, this option is for that information.
@@ -82,6 +86,7 @@ module.exports = {
 
     /**
      * Get the exact type of a provided value.
+     * @private
      * @param {*} value - The input to get the type of.
      * @returns {string}
      */
@@ -91,6 +96,7 @@ module.exports = {
 
     /**
      * Validate the types given to the function against the types they are supposed to be.
+     * @private
      * @param {Array} expected - The types the function expects.
      * @param {Array} args - The arguments provided to the function.
      */
@@ -105,6 +111,7 @@ module.exports = {
 
     /**
      * Used to sort tasks by comparing times and order.
+     * @private
      * @param {Object} a
      * @param {Object} b
      * @returns {number}

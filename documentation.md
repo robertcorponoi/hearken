@@ -1,8 +1,6 @@
-# Hawken
+# Hearken
 
 This documentation is split into the following sections and subsections:
-
-___
 
 - [Getting Started](#getting-started)
     - [Installation](#installation)
@@ -16,23 +14,20 @@ ___
 
 - [Events](#events)
 
-___
-
 ## **Getting Started**
 
 ### **Installation**
 
-The first step to including the Hawken timer in any of your projects is to install it via:
+The first step to including the Hearken timer in any of your projects is to install it via:
 ```js
-$ npm install --save hawken
+$ npm install --save hearken
 ```
 
-After successfully installing, go to the file you want to include the countdown timer in and create a new instance of a Hawken timer.
+After successfuly installing Hearken, choose where you would like to initialize it and at the top of the file place:
+
 ```js
 const Hearken = require("hearken");
 ```
-
-___
 
 ### **Options**
 
@@ -54,8 +49,6 @@ Tasks consists of an array of objects that tells the timer what tasks to do duri
 | repeat    | (optional) Whether the task will run at an interval or just once.   | Boolean  |
 | fn        | Tasks that the timer should complete during operation.   | Function    |
 
-___
-
 ### **Basic Example**
 
 A visual example is always best so a simple initialization of a Hearken timer with tasks looks like below:
@@ -64,17 +57,17 @@ A visual example is always best so a simple initialization of a Hearken timer wi
 const Hearken = require("hearken");
 
 const options = {
-    startTime: "15000", // Can also be: "00:00:15".
+    startTime: "15000",             // Time can be input as milliseconds or as HH:MM:SS so in our case it would be "00:00:15".
     tasks: [
         {
-            name: "hello", // Whatever you want, this is used as a reference for deleting tasks.
-            time: "2000",  // Can also be: "00:00:02".
-            repeat: true,  // Since repeat is set to true, the task will now run every 2 seconds instead of just once at 2 seconds left.
-            fn: () => hello("Bob"), // The task (function) to run.
+            name: "hello",          // Name to reference to the task.
+            time: "2000",           // Just as with the start time, it can also be "00:00:02".
+            repeat: true,           // If repeat is set to true, the task will run at an interval instead of just once. So in this case it would run every 2 seconds.
+            fn: () => hello("Bob"), // The task to run, either a function in the block or a reference to a function (which must be wrapped in an anonymous function as shown).
         },
         {
             name: "add",
-            time: "7000",
+            time: "7000",           // Repeat option is not set so the task will run just once at 7 seconds.
             fn: () => add(),
         },
     ]
@@ -98,8 +91,6 @@ function add() {
 
 What this basic example will do is start a Hearken timer at 15 seconds. Since the ```hello()``` function is set to repeat every 2 seconds, it will run at 13 seconds, 11 seconds, 9 seconds, 7 seconds, 5 seconds, 3 seconds, and 1 second left. This ```add()``` function will run once at 7 seconds and then be removed from the task list.
 
-___
-
 ## **Properties**
 
 The following properties of the Hearken timer are available anytime after initialization:
@@ -113,16 +104,14 @@ The following properties of the Hearken timer are available anytime after initia
 In relation to the example provided under the [Getting Started - Basic Example](#basic-example) section, the properties would look like:
 
 ```js
-let startTime = hearken.startTime // "15000".
+let startTime = hearken.startTime       // "15000".
 
-let currentTime = hearken.currentTime // Depends when invoked, anywhere from "15000" down to "0".
+let currentTime = hearken.currentTime   // Depends when invoked, anywhere from "15000" down to "0".
 
-let tasks = hearken.tasks // [{ name: "hello", time: "2000", repeat: true, fn: [Function] }, { name: "add", time: "7000", fn: [Function] }].
+let tasks = hearken.tasks               // [{ name: "hello", time: "2000", repeat: true, fn: [Function] }, { name: "add", time: "7000", fn: [Function] }].
 ```
 
 **Note on Properties**: Because these properties are initialized when the timer is started, you can use these in your options object when initializing the class. This means that you can use ```hearken.currentTime``` as a parameter for a task if desired.
-
-___
 
 ## **Methods**
 
@@ -143,8 +132,6 @@ Start has no parameters and it is used to start the countdown of the timer. Once
 
 **Note**: If you pause the timer, do not use ```start()``` to resume it, use ```resume()``` instead.
 
-___
-
 ## **pause(reason)**
 
 | Property    | Description                                                | Type   | Default |
@@ -153,13 +140,9 @@ ___
 
 Pause takes a reason as an optional parameter and it's used if you need to temporaily stop operation of the timer.
 
-___
-
 ## **resume()**
 
 Resume has no parameters and is only used for starting a timer again after it has been paused.
-
-___
 
 ## **stop(reason)**
 
@@ -168,8 +151,6 @@ ___
 | reason      | An optional reason for stopping the timer.                  | string | null |
 
 Stop takes a reason as an optional parameter and is used to end the timer. This resets the timer and all properties are lost so only use this method if you're absolutely done with the timer.
-
-___
 
 ## **Tasks**
 
@@ -212,8 +193,6 @@ let tasks: [
 hearken.addTasks(tasks);
 ```
 
-___
-
 ## **removeTask(name)**
 
 | Property    | Description                                                | Type   |
@@ -222,13 +201,9 @@ ___
 
 Removes a task by its name from the task list. This is automatically used internally when a task is set to run only once.
 
-___
-
 ## **clearTasks()**
 
 Clears all tasks from the task list.
-
-___
 
 ## **getTasks()**
 
@@ -248,8 +223,6 @@ Returns all tasks currently on the task list. The returned format is as shown be
 ]
 ```
 
-___
-
 ## **Events**
 
 Almost every action of the timer returns an event so you can have even more control. Below is a list of all returned events:
@@ -260,8 +233,6 @@ Almost every action of the timer returns an event so you can have even more cont
 - [**AddTask([tasks])**](#addtask([tasks])-event)
 - [**RemoveTask(name)**](#removetask(name)-event)
 - [**ClearTasks()**](#cleartasks()-event)
-
-___
 
 ### **Pause(reason) Event**
 
@@ -287,8 +258,6 @@ The pause data object contains:
 }
 ```
 
-___
-
 ### **Resume() Event**
 
 ```js
@@ -311,8 +280,6 @@ While the resume data object isn't different than the pause one, you might want 
     },
 }
 ```
-
-___
 
 ### **Stop(reason) Event**
 
@@ -340,8 +307,6 @@ The stop data object is as follows:
 }
 ```
 
-___
-
 ### **AddTask([tasks]) Event**
 
 ```js
@@ -366,8 +331,6 @@ The taskAdded data object is as follows:
 }
 ```
 
-___
-
 ### **RemoveTask(name) Event**
 
 ```js
@@ -391,7 +354,6 @@ The taskRemoved data object is as follows:
     tasks: [{}],                // The current list of tasks associated with the timer.
 }
 ```
-___
 
 ### **ClearTasks() Event**
 

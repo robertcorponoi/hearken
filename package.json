@@ -1,7 +1,7 @@
 {
   "name": "hearken",
-  "version": "0.1.0",
-  "description": "",
+  "version": "0.1.1",
+  "description": "A self-adjusting timer capable of carrying out tasks on intervals.",
   "main": "index.js",
   "scripts": {
     "test": "node_modules/.bin/mocha"
