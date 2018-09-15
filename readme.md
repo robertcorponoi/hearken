@@ -1,10 +1,14 @@
-# Hearken
+<p align="center">
+  <img width="250" height="250" src="./Hearken.png">
+</p>
 
-Hearken is a self-adjusting countdown timer that can be configured to run tasks either one time or on an interval. Tasks can be added to the timer at anytime through a simple API and the timer will automatically remove old tasks so you don't have to worry about that.
+<h1 align="center">Hearken</h1>
+
+<p align="center">Welcome to Hearken, a self-adjusting countdown timer capable of carrying out tasks. Hearken tasks can be added at any point during operation through a simple API and they can be set to run just once or on an interval.<p>
 
 ## **Installation**
 
-Hearken is available through the NPM registry and you can install with simply:
+To install this module through npm, simply use the following command:
 
 ```
 $ npm install --save hearken
@@ -12,35 +16,38 @@ $ npm install --save hearken
 
 ## **Basic Example**
 
-Using Hearken in your project is simple and concise.
-
-First, simple require the Hearken timer and create a new instance of the timer, providing the only required parameter which is a time to start counting down from.
-The start time can be in milliseconds or in a '00:00:15' format. From there you just call the `start()` method to begin the countdown immediately.
-
-Check out the API below to learn all of the methods available for the Hearken timer.
+To begin using Hearken in your application, require the module:
 
 ```js
 const Hearken = require('hearken');
+```
 
-let hearken = new Hearken('15000');
+Then create a new instance of a Hearken timer and specify the time that it should start counting down from in one of two ways, either in milliseconds or in a string format like '00:00:05'.
+
+```js
+const hearken = new Hearken(15000);
+
+// OR
+
+const hearken = new Hearken('00:00:15');
+```
+
+Finally, call the Hearken timer's `start` method to begin the timer's operation.
+
+```js
 hearken.start();
 ```
 
+Check out the API below to learn all of the methods and events available for the Hearken timer.
+
 ## **API**
 
-- [`start`](#start())
-- [`pause`](#pause(reason))
-- [`resume`](#resume())
-- [`stop`](#stop(reason))
-- [`addTask`](#addTask(name,time,fn,repeat=false))
-- [`removeTask`](#removeTask(name))
-- [`clearTasks`](#clearTasks())
+### **start**
 
-### **start()**
+The `start` method takes no parameters and is used to start the operation of the Hearken timer. Once this method is called,
+the timer will begin counting down immediately without wait.
 
-The start method takes no parameters and it is used to start the countdown of the timer. Once this method is called, the timer will begin counting down immediately without wait.
-
-**Note**: If you pause the timer, do not use `start()` to resume it, use the `resume()` method instead.
+This means that if you set the timer to start at 15 seconds, the first tick will be 14 seconds not 15 seconds.
 
 ```js
 hearken.start();
@@ -49,138 +56,149 @@ hearken.start();
 
 ---
 
-### **pause(reason)**
+### **pause**
 
-| Property    | Description                                                | Type   | Default |
-| ---------   | ---------------------------------------------------------- | ------ | ------- |
-| reason      | An optional reason for pausing the timer.                  | string | null |
+The `pause` method takes a single optional parameter which is the reason as to why the Hearken timer is being paused.
 
-The pause method takes a single optional parameter and it is used to stop the operation of the timer temporairly.
+This reason will be emitted in the details when listening for the pause event.
 
-Pause emits an event when called with the provided reason included.
+| param  | type   | description                               | default |
+|--------|--------|-------------------------------------------|---------|
+| reason | string | An reason as to why the timer was paused. | null    |
 
 ```js
 hearken.pause('Short break');
-// The timer will pause until resumed with the reason of 'Short break';
+```
 
+This method emits an event which can be listened to like below:
+
+```js
 hearken.on('pause', (data) => {
+
+  // => { currentTime: 0000, elapsedTime: 0000, reason: 'Short break' }
   console.log(data);
-  // => { currentTime: { ms: '0000', time: '00:00:00' }, elapsedTime: { ms: '0000', time: '00:00:00' }, reason: 'Short break' }
+  
 });
 ```
 
 ---
 
-## **resume()**
+### **resume**
 
-The resume method takes no parameters and it is used for continuing the operation of the timer after it has been paused.
-
-Resume emits an event when called.
-
-**Example**
+The `resume` method takes no parameters and it is used for continuing the operation of the timer after it has been paused.
 
 ```js
 hearken.resume();
-// The timer will continue from being paused until paused again, stopped, or it reaches 0.
+```
 
+This method emits an event which can be listened to like below:
+
+```js
 hearken.on('resume', (data) => {
-  // => { currentTime: { ms: '0000', time: '00:00:00' }, elapsedTime: { ms: '0000', time: '00:00:00' } }
+  
+  // => { currentTime: 0000, elapsedTime: 0000 }
+  console.log(data);
+
 });
 ```
 
 ---
 
-## **stop(reason)**
+### **stop**
 
-| Property    | Description                                                | Type   | Default |
-| ---------   | ---------------------------------------------------------- | ------ | ------- |
-| reason      | An optional reason for stopping the timer.                  | string | null |
+The `stop` method, like `pause` takes a single parameter which is the reason as to why the Hearken timer was stopped.
 
-The stop method takes a single optional parameter and it is used to end the timer. This method resets the timer and all properties, including tasks, are lost so only use `stop()` if you're absolutely done with the current Hearken timer instance.
+This reason will be emitted when listening for the stop event.
 
-Stop emits an event when called with the provided reason included.
+Note that Hearken automatically calls this method when the timer reaches 0.
 
-**Example**
+| param  | type   | description                               | default |
+|--------|--------|-------------------------------------------|---------|
+| reason | string | An reason as to why the timer was paused. | null    |
 
 ```js
 hearken.stop('No longer needed');
-// Stops the timer immediately with the reason of 'No longer needed'.
+```
 
+This method emits an event which can be listened to like below:
+
+```js
 hearken.on('stop', (data) => {
+
+  // => { currentTime: 0000, elapsedTime: 0000, reason: 'No longer needed' }
   console.log(data);
-  // => { currentTime: { ms: '0000', time: '00:00:00' }, elapsedTime: { ms: '0000', time: '00:00:00' }, reason: 'No longer needed' }
+  
 });
 ```
 
+Also note that if you're listening to the stop event, it will emit when the timer reaches 0 with no reason.
+
 ---
 
-## **addTask(name,time,fn,repeat=false)**
+## **Tasks**
 
-| Property    | Description                                                | Type   | Default |
-| ---------   | ---------------------------------------------------------- | ------ | ------- |
-| name      | A reference name that will be used by Hearken to identify the task. This will also be the name used if you want to delete the task manually at any point.                  | string | none (required) |
-| time | The time to run the task at. If repeat is set to true, the task will run every [time] seconds. | string | none (required) |
-| fn | The method to associate with the task. | Function | none (required) |
-| repeat | Whether to repeat the task every [time] seconds. | boolean | false |
+Hearken exposes a tasks API that allows you to easily add and remove tasks from the Hearken timer.
 
-The addTask method creates a new job for the timer to perform either one time or at an interval if the repeat property is set to true.
+Tasks will emit events that can be listened to when they are run.
 
-**Example**:
+A task event can be listened for like below:
 
 ```js
-hearken.addTask('task1', '2000', hello('John'), true);
-// This will make the timer log 'Hello John!' to the timer every 2 seconds because repeat is set to true.
+hearken.on('task', (data) => {
 
-function hello(name) {
-  console.log(`Hello ${name}!`);
+  // data contains the timer's start time, current time, and all of the task information.
+  console.log(data);
+
+});
+```
+
+### **tasks.add**
+
+Add a new task to the Hearken timer. If the `repeat` parameter of the task is set to true, then Hearken will repeat this task every `time` seconds.
+
+| param  | type     | description                                                                                                                             | default |
+|--------|----------|-----------------------------------------------------------------------------------------------------------------------------------------|---------|
+| name   | string   | A reference name for the task that will be used when a task event is emitted or if you would like to remove the task                    |         |
+| time   | number   | The time at which Hearken will run the method related to this task. If this task is being repeated, it will be run every `time` seconds |         |
+| fn     | Function | The method to run every time this task is set to run.                                                                                   |         |
+| repeat | boolean  | Whether to run this task on an interval at every `time` seconds or just once                                                            | false   |
+
+```js
+// This will make the timer log 'Hello World!' to the timer every 2 seconds because repeat is set to true.
+hearken.tasks.add('hw', 2000, hello, true);
+
+function hello() {
+  console.log('Hello World!');
 }
 ```
 
 ---
 
-## **removeTask(name)**
+### **tasks.remove**
 
-| Property    | Description                                                | Type   | Default |
-| ---------   | ---------------------------------------------------------- | ------ | ------- |
-| name      | The name of the task to be deleted. This is the name that was set when the task was added to the timer.                  | string | null |
+Remove an existing task from the Hearken timer.
 
-The removeTask method takes a single parameter which is the name of the task to be deleted. This has to be the same name that was used when the task was first added.
-
-**Example**
+| param | type   | description                                                        | default |
+|-------|--------|--------------------------------------------------------------------|---------|
+| name  | string | The reference name of the task as defined when the task was added. |         |
 
 ```js
-hearken.removeTask('task1');
-// Removes the task named 'task1'.
+// Removes the task named 'hw'.
+hearken.tasks.remove('hw');
 ```
 
 ---
 
-## **clearTasks()**
+### **tasks.clear**
 
-The clearTasks method takes no parameters and it simply clears the task list so there are no jobs for the timer to perform.
-
-**Example**
+Remove all tasks from the Hearken timer.
 
 ```js
-hearken.clearTasks();
-// Removes all tasks from the instance of the Hearken timer.
-```
-
----
-
-## **Task Events**
-
-When a task is performed by the Hearken timer, an event is fired with the details about the time and the task that was just performed.
-
-```js
-hearken.on('event', (data) => {
-  console.log(data);
-  // => { currentTime: { ms: '0000', time: '00:00:00' }, elapsedTime: { ms: '0000', time: '00:00:00' }, event: { name: 'test', time: 2000, fn: [Function fn], repeat: true })}
-});
+hearken.tasks.clear();
 ```
 
 ---
 
 ## **License**
 
-[MIT](LICENSE.md).
+MIT

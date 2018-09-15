@@ -1,154 +1,192 @@
-"use strict"
+'use strict'
 
 const EventEmitter = require('events').EventEmitter;
-const utils = require('./utils');
+const TaskManager = require('./TaskManager');
+const convert = require('./convert');
 
+/**
+ * Hearken is a self-adjusting countdown timer that can be configured to run tasks at intervals or
+ * just one time.
+ * 
+ * A Hearken timer always accepts and will always return times in a string format '00:00:00' or a
+ * millisecond format.
+ * 
+ * @since 0.1.0
+ */
 module.exports = class Hearken extends EventEmitter {
+
   /**
-   * Represents an instance of a Hearken timer.
-   * 
-   * @param {string|number} [startTime=0] The time the timer will begin counting down from. This can be in millisecond or '00:00:05' format.
+   * @param {string|number} [startTime=0] The time that Hearken will start counting down from. This can be in milliseconds or a string in a '00:00:00' format.
    */
-  constructor(startTime) {
+  constructor(startTime = 0) {
+
     super();
-    this.startTime = utils.timeToMs(startTime) || 0;
+
+    /**
+     * The start time of this Hearken timer.
+     * 
+     * The `startTime` input will be normalized to a millisecond value if it is in
+     * a string format.
+     * 
+     * @prop {number}
+     * @readonly
+     * 
+     * @default 0
+     */
+    this.startTime = convert.auto(startTime, true);
+
+    /**
+     * The current amount of time left on this Hearken timer which at the
+     * beginning is the same as the `startTime`.
+     * 
+     * @prop {number}
+     * @readonly
+     */
     this.currentTime = this.startTime;
+
+    /**
+     * How many milliseconds this Hearken timer should count down each step.
+     * 
+     * @prop {number}
+     * @readonly
+     * 
+     * @default 1000
+     */
     this.interval = 1000;
-    this.tasks = [];
+
+    /**
+     * When the Hearken timer is counting down, it will check this property to
+     * see if it is in step. If it is not, it will attempt to correct itself.
+     * 
+     * @prop {number}
+     * @readonly
+     */
+    this.expected = 0;
+
+    /**
+     * Initialize the Task Manager which is used to add and remove tasks.
+     * 
+     * @prop {TaskManager}
+     */
+    this.tasks = new TaskManager(this);
+
   }
 
   /**
-   * Time timer will begin counting down as soon as this method is called.
+   * Normalize the `startTime` value to be in milliseconds in case it is not already,
+   * set the `expected` property and begin the `setTimeout` countdown.
    * 
    * @since 0.1.0
    */
   start() {
+
     this.expected = Date.now();
-    this.onTick();
+
+    this._tick();
+
   }
 
   /**
-   * onTick runs once every second and checks for tasks that need to be run and it also
-   * adjusts the timer operation to account for drift from setTimeout.
+   * Every second Hearken runs `_tick` and begins by correcting itself of any drift
+   * that might have occurred during operation.
+   * 
+   * After correction, Hearken checks to see if there's any tasks that need to be
+   * accomplished and if the tasks are set to repeat, Hearken updates the tasks to
+   * their new run at values.
    * 
    * @since 0.1.0
    */
-  onTick() {
+  _tick() {
+
+    // Calculate any drift that might have occured.
     const drift = Date.now() - this.expected;
+
+    // Woah, the drift is larger than the Hearken timer's interval we have to abandon ship.
     if (drift > this.interval) throw new Error('The timer has encountered an error and cannot recover');
 
+    // Adjust the Hearken timer's properties to account for the drift.
     this.expected += this.interval;
     this.currentTime -= this.interval;
 
-    for (let i = 0, len = this.tasks.length; i < len; ++i) {
-      let task = this.tasks[i];
+    this.tasks._check();
 
-      if (task.runAt == this.currentTime) {
-        task.fn();
-        this.emit('task', utils.buildEvent(this.startTime, this.currentTime, { name: 'event', value: task }));
-
-        if (task.repeat) task.runAt = this.currentTime - task.time;
-        else this.removeTask(task.name);
-      }
-    }
-
+    // The Hearken timer is up no need to tick anymore.
     if (this.currentTime == 0) {
+
       this.stop();
+
       return;
+
     }
 
+    // Call `setTimeout` again to keep the Hearken timer ticking
+    // accounting for the drift.
     this.timer = setTimeout(() => {
-      this.onTick();
+
+      this._tick();
+
     }, Math.max(0, this.interval - drift));
+
   }
 
   /**
-   * Temporarily halt the operation of the timer and save the current time to be used
-   * resuming and emit the pause event.
+   * Halt the operation of the Hearken timer until `resume` is called.
+   * 
+   * The properties of the Hearken timer will be saved so that the timer can resume like it was
+   * never paused.
+   * 
+   * This will also emit a pause event with the Hearken timer's properties and the reason for the
+   * timer being paused, if any.
    * 
    * @since 0.1.0
-   * @param {string} [reason=null] An optional reason as to why the timer was paused.
+   * 
+   * @param {string} [reason] A reason as to why the Hearken timer was paused.
    */
-  pause(reason = null) {
+  pause(reason) {
+
     clearTimeout(this.timer);
-    this.emit('pause', utils.buildEvent(this.startTime, this.currentTime, { name: 'reason', value: reason }));
+
+    this.emit('pause', { startTime: this.startTime, currentTime: this.currentTime, reason: reason });
+
   }
 
   /**
-   * Continue the operation of the after being paused and emit the resume event.
+   * Continue the operation of the Hearken timer from a paused state.
+   * 
+   * The Hearken timer will resume from when it was paused like it was never paused in
+   * the first place.
    * 
    * @since 0.1.0
    */
   resume() {
+
     this.expected = Date.now();
-    this.onTick();
-    this.emit('resume', utils.buildEvent(this.startTime, this.currentTime));
+
+    this._tick();
+
+    this.emit('resume', { startTime: this.startTime, currentTime: this.currentTime });
+
   }
 
   /**
-   * Completely stop the operation of the timer.
+   * Stop the operation of the Hearken timer and set all properties back to their original
+   * values.
+   * 
+   * Use this only if you're done with this instance of the timer and want to stop
+   * it and emit the stop event.
    * 
    * @since 0.1.0
-   * @param {string} [reason=null] An optional reason as to why the timer was stopped.
+   * 
+   * @param {string} [reason] A reason as to why the Hearken timer was paused.
    */
-  stop(reason = null) {
+  stop(reason) {
+
     clearTimeout(this.timer);
+
     this.timer = null;
-    this.emit('stop', utils.buildEvent(this.startTime, this.currentTime, { name: 'reason', value: reason }));
+
+    this.emit('stop', { startTime: this.startTime, currentTime: this.currentTime, reason: reason });
+
   }
 
-  /**
-   * Create a new task for the timer to perform at a specified time. By default, the
-   * task will run at the time specified but if repeat is set to true, it will run every
-   * [time] seconds until the timer is over.
-   * 
-   * @since 1.0.0
-   * @param {string} name A reference name the timer will use for the task.
-   * @param {string} time The time to run the task at. If repeat is set to true, the task will run every [time] seconds.
-   * @param {Function} fn The method to associate with the task.
-   * @param {boolean} [repeat=false] Whether to repeat the task every [time] seconds.
-   */
-  addTask(name, time, fn, repeat = false) {
-    if (!name) throw new Error('Please specify a name for the task');
-    if (!time) throw new Error('Please specify when the task should run');
-    if (!fn) throw new Error('Please provide a method to associate the task with');
-
-    let task = {
-      name: name,
-      time: time,
-      runAt: time,
-      fn: fn,
-      repeat: repeat
-    };
-
-    if (repeat) task.runAt = this.currentTime - time;
-
-    this.tasks.push(task);
-  }
-
-  /**
-   * Delete a task from the task queue by its reference name.
-   * 
-   * @since 1.0.0
-   * @param {string} name The reference name for the task set when the task was added.
-   */
-  removeTask(name) {
-    if (!name) throw new Error('The name of the task to remove must be specified');
-
-    for (let i = 0, len = this.tasks.length; i < len; ++i) {
-      if (this.tasks[i].name == name) {
-        this.tasks.splice(i, 1);
-        return;
-      }
-    }
-  }
-
-  /**
-   * Deletes all tasks from the task queue.
-   * 
-   * @since 1.0.0
-   */
-  clearTasks() {
-    this.tasks = [];
-  }
 }

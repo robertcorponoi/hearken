@@ -1,7 +1,7 @@
 {
   "name": "hearken",
-  "version": "1.0.0",
-  "description": "A self-adjusting timer capable of carrying out tasks on intervals.",
+  "version": "2.0.0",
+  "description": "Welcome to Hearken, a self-adjusting countdown timer capable of carrying out tasks. Hearken tasks can be added at any point during operation through a simple API and they can be set to run just once or on an interval.",
   "main": "index.js",
   "scripts": {
     "test": "node_modules/.bin/mocha"
@@ -18,7 +18,7 @@
   "author": "Robert Corponoi",
   "license": "MIT",
   "devDependencies": {
-    "mocha": "^5.1.1",
+    "mocha": "^5.2.0",
     "sinon": "^6.1.3"
   }
 }

@@ -1,19 +1,31 @@
 'use strict'
 
 const assert = require('assert');
-const Hearken = require('../index');
 const sinon = require('../node_modules/sinon');
+const Hearken = require('../index');
 
+// Test the functionality of the of the core Hearken timer.
 describe('Hearken', () => {
 
-  describe('#constructor()', () => {
+  // Make sure that when a Hearken timer is initialized, the
+  // `startTime` is correctly normalized.
+  describe('Initialization', () => {
 
+    // Case 3: User provides a start time in milliseconds.
     it('should have a start time of 15000 with startTime in milliseconds', () => {
+      const hearken = new Hearken(15000);
+
+      assert.deepEqual(hearken.startTime, 15000);
+    });
+
+    // Case 2: User provides a start time in milliseconds as a string.
+    it('should have a start time of 15000 with startTime in milliseconds as a string', () => {
       const hearken = new Hearken('15000');
 
       assert.deepEqual(hearken.startTime, 15000);
     });
 
+    // Case 3: User provides a start time in a string format.
     it('should have a start time of 15000 with startTime in "00:00:15" format', () => {
       const hearken = new Hearken('00:00:15');
 
@@ -22,6 +34,8 @@ describe('Hearken', () => {
 
   });
 
+  // Make sure that when a Hearken timer is started, the ticking
+  // also begins.
   describe('#start()', () => {
 
     beforeEach(() => {
@@ -32,6 +46,7 @@ describe('Hearken', () => {
       this.clock.restore();
     });
 
+    // Check if two seconds have passed using Sinon's fake timers.
     it('should have passed two seconds', () => {
       const hearken = new Hearken('15000');
       hearken.start();
@@ -43,7 +58,9 @@ describe('Hearken', () => {
 
   });
 
-  describe('#onTick()', () => {
+  // Every interval of the Hearken timer the current time on the
+  // Hearken timer should go down.
+  describe('#_tick()', () => {
 
     beforeEach(() => {
       this.clock = sinon.useFakeTimers();
@@ -64,6 +81,7 @@ describe('Hearken', () => {
 
   });
 
+  // When the Hearken timer is paused it should emit an event.
   describe('#pause()', () => {
 
     beforeEach(() => {
@@ -105,6 +123,8 @@ describe('Hearken', () => {
 
   });
 
+  // When the Hearken timer is resumed from being paused, it should
+  // emit an event.
   describe('#resume()', () => {
 
     beforeEach(() => {
@@ -151,6 +171,8 @@ describe('Hearken', () => {
 
   });
 
+  // When the Hearken timer is stopped, the timer should stop ticking
+  // and and event should be emitted.
   describe('#stop()', () => {
 
     beforeEach(() => {
@@ -189,81 +211,85 @@ describe('Hearken', () => {
 
   });
 
+  // Make sure Hearken's task system works including adding, removing, and
+  // running tasks.
   describe('tasks', () => {
 
-    describe('#addTask()', () => {
+    describe('Add Task', () => {
 
+      // Add a task to the Hearken timer.
       it('should add a new task to the task queue', () => {
-        let hearken = new Hearken('15000');
+        let hearken = new Hearken(15000);
 
-        hearken.addTask('test1', '2000', hello('World'), true);
+        hearken.tasks.add('hw', 2000, hello, true);
 
-        function hello(name) {
-          return `Hello ${name}!`;
+        function hello() {
+          return 'Hello World!';
         }
 
-        const result = hearken.tasks[0].fn;
-        assert.deepEqual(result, 'Hello World!');
+        let res;
+
+        for (let task of hearken.tasks.tasks) {
+          if (task.name === 'hw') {
+            res = task.fn();
+            break;
+          }
+        }
+
+        assert.deepEqual(res, 'Hello World!');
+
       });
 
     });
 
-    describe('#removeTask()', () => {
+    // Remove a task from Hearken.
+    describe('Remove Task', () => {
 
       it('should remove task test1 from the task queue', () => {
         let hearken = new Hearken('15000');
 
-        const pretestTasks = [
-          {
-            name: 'pretest1',
-            time: '1000',
-            fn: () => console.log('Testing')
-          },
-          {
-            name: 'pretest2',
-            time: '5000',
-            fn: () => console.log('Testing2')
-          }
-        ];
+        function hello() {
+          return 'Hello World!'
+        }
 
-        hearken.tasks = pretestTasks;
+        function add() {
+          return 2 + 5;
+        }
 
-        hearken.addTask('test1', '2000', () => console.log('Hello World!'), true);
-        hearken.removeTask('test1');
+        hearken.tasks.add('hello', 5000, hello).add('add', 1000, add);
 
-        assert.deepEqual(hearken.tasks, pretestTasks);
+        hearken.tasks.remove('add');
+
+        assert.deepEqual(hearken.tasks.tasks.size, 1);
       });
 
     });
 
-    describe('#clearTasks()', () => {
+    // Remove all tasks from Hearken.
+    describe('Clear All Tasks', () => {
 
-      it('should remove all tasks from the task queue', () => {
+      it('should remove all tasks', () => {
         let hearken = new Hearken('15000');
 
-        const pretestTasks = [
-          {
-            name: 'pretest1',
-            time: '1000',
-            fn: () => console.log('Testing')
-          },
-          {
-            name: 'pretest2',
-            time: '5000',
-            fn: () => console.log('Testing2')
-          }
-        ];
+        function hello() {
+          return 'Hello World!'
+        }
 
-        hearken.tasks = pretestTasks;
+        function add() {
+          return 2 + 5;
+        }
 
-        hearken.clearTasks();
+        hearken.tasks.add('hello', 5000, hello).add('add', 1000, add);
 
-        assert.deepEqual(hearken.tasks, []);
+        hearken.tasks.clear();
+
+        assert.deepEqual(hearken.tasks.tasks.size, 0);
       });
 
     });
 
-    describe('task event', () => {
+    // Make sure that when a task is run, an event is emitted.
+    describe('Task Event', () => {
 
       beforeEach(() => {
         this.clock = sinon.useFakeTimers();
@@ -277,7 +303,11 @@ describe('Hearken', () => {
         let hearken = new Hearken('10000');
         let spy = sinon.spy();
 
-        hearken.addTask('test-task-1', '5000', () => console.log('Hello World!'));
+        function hello() {
+          return 'Hello World!'
+        }
+
+        hearken.tasks.add('hello', 5000, hello);
 
         hearken.on('task', spy);
 
