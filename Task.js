@@ -1,86 +1,111 @@
 'use strict'
 
 /**
- * A task is a job that can be assigned to a Hearken timer and whatever functionality
- * that is added to the task will be performed at the specified run time.
- * 
- * Tasks support one-time and repeated runs so you can set a Task to run at 5 seconds left
- * or every 5 seconds.
+ * A task is a job that can be assigned to a Hearken timer and run at certain intervals
+ * or just once.
  * 
  * @since 2.0.0
  */
 module.exports = class Task {
 
   /**
-   * @prop {string} name The name of this task.
-   * @prop {number|string} time The time to run at either once or at an interval every `time` seconds.
-   * @prop {Function} fn The method run every time this task is set to run.
-   * @prop {boolean} repeat Indicates whether this task is supposed to run every `time` seconds.
+   * @param {string} name The name of the task.
+   * @param {string|number} time The time to run the task at. If `repeat` is set to `true`, then the task will run at an interval.
+   * @param {Function} cb The callback method that will be called when the task is run.
+   * @param {boolean} repeat Indicates whether the task is supposed to repeat on an interval.
    */
-  constructor(name, time, fn, repeat) {
+  constructor(name, time, cb, repeat) {
 
     /**
-     * The name of the task.
+     * A reference to the name of the task.
      * 
-     * @prop {string}
+     * @property {string}
      * @readonly
      */
-    this.name = name;
+    this._name = name;
 
     /**
-     * The time to run at either once or at an interval.
+     * A reference to the time or interval that the task will be run.
      * 
-     * @prop {string}
-     */
-    this.time = time;
-
-    /**
-     * The method to run every time this task is called by Hearken.
-     * 
-     * @prop {Function}
-     */
-    this.fn = fn;
-
-    /**
-     * Indicates whether this task is supposed to run every `this.time` seconds.
-     * 
-     * @prop {boolean}
-     * 
-     * @default false
-     */
-    this.repeat = repeat;
-
-    /**
-     * This is used by Hearken to decide when the timer runs.
-     * 
-     * On repeating tasks, this will be updated every time the task runs.
-     * 
-     * @prop {number}
+     * @property {string|number}
      * @readonly
      */
-    this._runAt = this.time;
+    this._time = time;
+
+    /**
+     * A reference to the callback method that will be called when the task is run.
+     * 
+     * @property {Function}
+     * @readonly
+     */
+    this._cb = cb;
+
+    /**
+     * Indicates whether the task is supposed to repeat on an interval.
+     * 
+     * @property {boolean}
+     * @readonly
+     */
+    this._repeat = repeat;
+
+    /**
+     * Used internally by the timer to decide when the task is to be run.
+     * 
+     * On repeating tasks, this will be updated every time the task is run.
+     * 
+     * @property {number}
+     * @readonly
+     */
+    this._runAt = this._time;
 
   }
 
   /**
-   * Call the method associated with this task.
+   * Gets the name of the task.
+   * 
+   * @since 3.0.0
+   * 
+   * @returns {string} Returns the name of the task.
+   */
+  get name() {
+
+    return this._name;
+
+  }
+
+  /**
+   * Gets the time the task is set to run at.
+   * 
+   * @since 3.0.0
+   * 
+   * @returns {number} Returns the time the task will run at next.
+   */
+  get time() {
+
+    return this._runAt;
+
+  }
+
+  /**
+   * Run the callback method associated with the task.
    * 
    * @since 2.0.0
    */
   run() {
 
-    this.fn();
+    this._cb();
 
   }
 
   /**
-   * Update the `runAt` property of this task if it's set to repeat.
+   * Used internally by the timer to set the new time that the timer will
+   * run at.
    * 
-   * @since 2.0.0
+   * @since 3.0.0
    * 
    * @param {number} time The new time to run the task at.
    */
-  update(time) {
+  _update(time) {
 
     this._runAt = time;
 

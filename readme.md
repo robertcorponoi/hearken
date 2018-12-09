@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="250" height="250" src="./Hearken.png">
+  <img width="250" height="250" src="./hearken.png">
 </p>
 
 <h1 align="center">Hearken</h1>

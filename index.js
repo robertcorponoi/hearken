@@ -1,15 +1,12 @@
 'use strict'
 
-const EventEmitter = require('events').EventEmitter;
-const TaskManager = require('./TaskManager');
 const convert = require('./convert');
+const TaskManager = require('./taskmanager');
+const EventEmitter = require('events').EventEmitter;
 
 /**
  * Hearken is a self-adjusting countdown timer that can be configured to run tasks at intervals or
  * just one time.
- * 
- * A Hearken timer always accepts and will always return times in a string format '00:00:00' or a
- * millisecond format.
  * 
  * @since 0.1.0
  */
@@ -33,7 +30,7 @@ module.exports = class Hearken extends EventEmitter {
      * 
      * @default 0
      */
-    this.startTime = convert.auto(startTime, true);
+    this._startTime = convert.auto(startTime, true);
 
     /**
      * The current amount of time left on this Hearken timer which at the
@@ -42,7 +39,7 @@ module.exports = class Hearken extends EventEmitter {
      * @prop {number}
      * @readonly
      */
-    this.currentTime = this.startTime;
+    this._currentTime = this._startTime;
 
     /**
      * How many milliseconds this Hearken timer should count down each step.
@@ -52,7 +49,7 @@ module.exports = class Hearken extends EventEmitter {
      * 
      * @default 1000
      */
-    this.interval = 1000;
+    this._interval = 1000;
 
     /**
      * When the Hearken timer is counting down, it will check this property to
@@ -61,7 +58,7 @@ module.exports = class Hearken extends EventEmitter {
      * @prop {number}
      * @readonly
      */
-    this.expected = 0;
+    this._expected = 0;
 
     /**
      * Initialize the Task Manager which is used to add and remove tasks.
@@ -73,6 +70,19 @@ module.exports = class Hearken extends EventEmitter {
   }
 
   /**
+   * Get the current time left on the timer.
+   * 
+   * @since 3.0.0
+   * 
+   * @returns {number} Returns the time left on the timer.
+   */
+  get currentTime() {
+
+    return this._currentTime;
+
+  }
+
+  /**
    * Normalize the `startTime` value to be in milliseconds in case it is not already,
    * set the `expected` property and begin the `setTimeout` countdown.
    * 
@@ -80,7 +90,7 @@ module.exports = class Hearken extends EventEmitter {
    */
   start() {
 
-    this.expected = Date.now();
+    this._expected = Date.now();
 
     this._tick();
 
@@ -95,23 +105,24 @@ module.exports = class Hearken extends EventEmitter {
    * their new run at values.
    * 
    * @since 0.1.0
+   * @private
    */
   _tick() {
 
     // Calculate any drift that might have occured.
-    const drift = Date.now() - this.expected;
+    const drift = Date.now() - this._expected;
 
     // Woah, the drift is larger than the Hearken timer's interval we have to abandon ship.
-    if (drift > this.interval) throw new Error('The timer has encountered an error and cannot recover');
+    if (drift > this._interval) throw new Error('The timer has encountered an error and cannot recover');
 
     // Adjust the Hearken timer's properties to account for the drift.
-    this.expected += this.interval;
-    this.currentTime -= this.interval;
+    this._expected += this._interval;
+    this._currentTime -= this._interval;
 
     this.tasks._check();
 
     // The Hearken timer is up no need to tick anymore.
-    if (this.currentTime == 0) {
+    if (this._currentTime == 0) {
 
       this.stop();
 
@@ -125,7 +136,7 @@ module.exports = class Hearken extends EventEmitter {
 
       this._tick();
 
-    }, Math.max(0, this.interval - drift));
+    }, Math.max(0, this._interval - drift));
 
   }
 
@@ -146,7 +157,7 @@ module.exports = class Hearken extends EventEmitter {
 
     clearTimeout(this.timer);
 
-    this.emit('pause', { startTime: this.startTime, currentTime: this.currentTime, reason: reason });
+    this.emit('pause', { startTime: this._startTime, currentTime: this._currentTime, reason: reason });
 
   }
 
@@ -160,11 +171,11 @@ module.exports = class Hearken extends EventEmitter {
    */
   resume() {
 
-    this.expected = Date.now();
+    this._expected = Date.now();
 
     this._tick();
 
-    this.emit('resume', { startTime: this.startTime, currentTime: this.currentTime });
+    this.emit('resume', { startTime: this._startTime, currentTime: this._currentTime });
 
   }
 
@@ -185,7 +196,7 @@ module.exports = class Hearken extends EventEmitter {
 
     this.timer = null;
 
-    this.emit('stop', { startTime: this.startTime, currentTime: this.currentTime, reason: reason });
+    this.emit('stop', { startTime: this._startTime, currentTime: this._currentTime, reason: reason });
 
   }
 

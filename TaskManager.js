@@ -1,10 +1,10 @@
 'use strict'
 
-const Task = require('./Task');
+const Task = require('./task');
 
 /**
- * The task manager is responsible for adding, editing, and removing tasks
- * in conjunction with the Hearken timer.
+ * The task manager is responsible for creating and removing tasks from the
+ * Hearken timer.
  * 
  * @since 2.0.0
  */
@@ -20,55 +20,72 @@ module.exports = class TaskManager {
      * 
      * @prop {Hearken}
      */
-    this.timer = timer;
+    this._timer = timer;
 
     /**
-     * A list of the currently assigned tasks.
+     * A collection of the currently assigned tasks.
+     * 
+     * @property {Set}
+     * @readonly
      */
-    this.tasks = new Set();
+    this._tasks = new Set();
 
   }
 
   /**
-   * Add a new task to the TaskManager.
+   * Get the list of active tasks as an array.
+   * 
+   * @since 3.0.0
+   * 
+   * @returns {Array} The active tasks for the timer.
+   */
+  get tasks() {
+
+    return Array.from(this._tasks);
+
+  }
+
+  /**
+   * Creates a new task.
    * 
    * @since 2.0.0
    * 
-   * @prop {string} name The name of the task to add.
-   * @prop {number|string} time The time to run at either once or at an interval every `time` seconds.
-   * @prop {Function} fn The method run every time the task is set to run.
-   * @prop {boolean} [repeat=false] Indicates whether the task is supposed to run every `time` seconds.
+   * @param {string} name The name of the task.
+   * @param {string|number} time The time to run the task at.
+   * @param {Function} cb The callback method to call when the task is run.
+   * @param {boolean} [repeat=false] Indicates whether the task will repeat every `time` seconds.
    * 
-   * @returns {TaskManager} This for chaining.
+   * @returns {TaskManager} Returns this for chaining.
    */
-  add(name, time, fn, repeat = false) {
+  create(name, time, cb, repeat = false) {
 
-    const task = new Task(name, time, fn, repeat);
+    const task = new Task(name, time, cb, repeat);
 
-    if (repeat) task.update(this.timer.currentTime - task.time);
+    if (repeat) task._update(this._timer._currentTime - task.time);
 
-    this.tasks.add(task);
+    this._tasks.add(task);
 
     return this;
 
   }
 
   /**
-   * Remove a task from the Task Manager.
+   * Removes a task from the task manager.
    * 
    * @since 2.0.0
    * 
-   * @prop {string} name The name of the task to remove.
+   * @param {string} name The name of the task to remove.
    * 
-   * @returns {TaskManager} This for chaining.
+   * @returns {TaskManager} Returns this for chaining.
    */
-  remove(name) {
+  destroy(name) {
 
-    for (let task of this.tasks) {
+    for (const task of this._tasks) {
 
       if (task.name === name) {
 
-        this.tasks.delete(task);
+        this._tasks.delete(task);
+
         break;
 
       }
@@ -80,41 +97,47 @@ module.exports = class TaskManager {
   }
 
   /**
-   * Clears all tasks from the Task Manager.
+   * Clears all tasks from the task manager.
    * 
    * @since 2.0.0
    * 
-   * @returns {TaskManager} This for chaining.
+   * @returns {TaskManager} Returns this for chaining.
    */
-  clear() {
+  destroyAll() {
 
-    this.tasks.clear();
+    this._tasks.clear();
 
     return this;
 
   }
 
   /**
-   * Check to see if a task is needed to be called.
-   * 
-   * This compares the Hearken timer's current time to each task's run at time
-   * to see if anything needs to be run.
+   * Checks to see if a task is due to be run.
    * 
    * @since 2.0.0
+   * @private
    */
   _check() {
 
-    for (let task of this.tasks) {
+    for (const task of this._tasks) {
 
-      if (task._runAt === this.timer.currentTime) {
+      if (task._runAt === this._timer._currentTime) {
 
         task.run();
 
-        this.timer.emit('task', { startTime: this.timer.startTime, currentTime: this.timer.currentTime, task: task });
+        this._timer.emit('task', {
 
-        if (task.repeat) task.update(this.timer.currentTime - task.time);
+          startTime: this._timer._startTime,
 
-        else this.tasks.delete(task);
+          currentTime: this._timer._currentTime,
+
+          task: task
+
+        });
+
+        if (task._repeat) task._update(this._timer._currentTime - task._time);
+        
+        else this._tasks.delete(task);
 
       }
 

@@ -1,324 +1,381 @@
 'use strict'
 
-const assert = require('assert');
-const sinon = require('../node_modules/sinon');
+const chai = require('chai');
+const sinon = require('sinon');
 const Hearken = require('../index');
 
-// Test the functionality of the of the core Hearken timer.
-describe('Hearken', () => {
+let hearken;
+let clock;
 
-  // Make sure that when a Hearken timer is initialized, the
-  // `startTime` is correctly normalized.
-  describe('Initialization', () => {
+describe('Converting times between string and millisecond format', () => {
 
-    // Case 3: User provides a start time in milliseconds.
-    it('should have a start time of 15000 with startTime in milliseconds', () => {
-      const hearken = new Hearken(15000);
+  it('should take an input of 15000 and set the start time to 15000', () => {
 
-      assert.deepEqual(hearken.startTime, 15000);
-    });
+    hearken = new Hearken(15000);
 
-    // Case 2: User provides a start time in milliseconds as a string.
-    it('should have a start time of 15000 with startTime in milliseconds as a string', () => {
-      const hearken = new Hearken('15000');
-
-      assert.deepEqual(hearken.startTime, 15000);
-    });
-
-    // Case 3: User provides a start time in a string format.
-    it('should have a start time of 15000 with startTime in "00:00:15" format', () => {
-      const hearken = new Hearken('00:00:15');
-
-      assert.deepEqual(hearken.startTime, 15000);
-    });
+    chai.expect(hearken._startTime).to.equal(15000);
 
   });
 
-  // Make sure that when a Hearken timer is started, the ticking
-  // also begins.
-  describe('#start()', () => {
+  it('should take an input of `15000` as a string and set the start time to 15000', () => {
 
-    beforeEach(() => {
-      this.clock = sinon.useFakeTimers();
-    });
+    hearken = new Hearken('15000');
 
-    afterEach(() => {
-      this.clock.restore();
-    });
-
-    // Check if two seconds have passed using Sinon's fake timers.
-    it('should have passed two seconds', () => {
-      const hearken = new Hearken('15000');
-      hearken.start();
-
-      this.clock.tick(1000);
-
-      assert.deepEqual(hearken.currentTime, 13000);
-    });
+    chai.expect(hearken._startTime).to.equal(15000);
 
   });
 
-  // Every interval of the Hearken timer the current time on the
-  // Hearken timer should go down.
-  describe('#_tick()', () => {
+  it('should take a start time of `00:00:15` and set the start time to 15000', () => {
 
-    beforeEach(() => {
-      this.clock = sinon.useFakeTimers();
-    });
+    hearken = new Hearken('00:00:15');
 
-    afterEach(() => {
-      this.clock.restore();
-    });
-
-    it('should have passed 8 seconds', () => {
-      const hearken = new Hearken('15000');
-      hearken.start();
-
-      this.clock.tick(7000);
-
-      assert.deepEqual(hearken.currentTime, 7000);
-    });
+    chai.expect(hearken._startTime).to.equal(15000);
 
   });
 
-  // When the Hearken timer is paused it should emit an event.
-  describe('#pause()', () => {
+});
 
-    beforeEach(() => {
-      this.clock = sinon.useFakeTimers();
-    });
+describe('Starting the timer', () => {
 
-    afterEach(() => {
-      this.clock.restore();
-    });
+  beforeEach(() => {
 
-    it('should pause the timer at 12 seconds', () => {
-      const hearken = new Hearken('15000');
-      hearken.start();
+    hearken = new Hearken(15000);
 
-      this.clock.tick(2000);
-
-      hearken.pause();
-
-      this.clock.tick(5000);
-
-      assert.deepEqual(hearken.currentTime, 12000);
-    });
-
-    it('should emit an event on pause', () => {
-      let spy = sinon.spy();
-
-      const hearken = new Hearken('15000');
-
-      hearken.on('pause', spy);
-
-      hearken.start();
-
-      this.clock.tick(2000);
-
-      hearken.pause();
-
-      assert(spy.calledOnce, true);
-    });
+    clock = sinon.useFakeTimers();
 
   });
 
-  // When the Hearken timer is resumed from being paused, it should
-  // emit an event.
-  describe('#resume()', () => {
+  afterEach(() => {
 
-    beforeEach(() => {
-      this.clock = sinon.useFakeTimers();
-    });
+    hearken = null;
 
-    afterEach(() => {
-      this.clock.restore();
-    });
-
-    it('should resume the timer after being paused', () => {
-      const hearken = new Hearken('15000');
-      hearken.start();
-
-      this.clock.tick(2000);
-
-      hearken.pause();
-
-      this.clock.tick(2000);
-
-      hearken.resume();
-
-      assert.deepEqual(hearken.currentTime, 11000);
-    });
-
-    it('should emit an event on resume', () => {
-      let spy = sinon.spy();
-
-      const hearken = new Hearken('15000');
-      hearken.start();
-
-      hearken.on('resume', spy);
-
-      this.clock.tick(2000);
-
-      hearken.pause();
-
-      this.clock.tick(2000);
-
-      hearken.resume();
-
-      assert.deepEqual(spy.calledOnce, true);
-    });
+    clock.restore();
 
   });
 
-  // When the Hearken timer is stopped, the timer should stop ticking
-  // and and event should be emitted.
-  describe('#stop()', () => {
+  it('should have started at 15000 and passed two seconds', () => {
 
-    beforeEach(() => {
-      this.clock = sinon.useFakeTimers();
-    });
+    hearken.start();
 
-    afterEach(() => {
-      this.clock.restore();
-    });
+    clock.tick(1000);
 
-    it('should stop the timer', () => {
-      const hearken = new Hearken('15000');
-      hearken.start();
-
-      this.clock.tick(2000);
-
-      hearken.stop();
-
-      assert.deepEqual(hearken.timer, null);
-    });
-
-    it('should emit an event on stop', () => {
-      let spy = sinon.spy();
-
-      const hearken = new Hearken('15000');
-      hearken.start();
-
-      hearken.on('stop', spy);
-
-      this.clock.tick(2000);
-
-      hearken.stop();
-
-      assert.deepEqual(spy.calledOnce, true);
-    });
+    chai.expect(hearken.currentTime).to.equal(13000);
 
   });
 
-  // Make sure Hearken's task system works including adding, removing, and
-  // running tasks.
-  describe('tasks', () => {
+});
 
-    describe('Add Task', () => {
+describe('Ticking the timer down', () => {
 
-      // Add a task to the Hearken timer.
-      it('should add a new task to the task queue', () => {
-        let hearken = new Hearken(15000);
+  beforeEach(() => {
 
-        hearken.tasks.add('hw', 2000, hello, true);
+    hearken = new Hearken(15000);
 
-        function hello() {
-          return 'Hello World!';
-        }
+    clock = sinon.useFakeTimers();
 
-        let res;
+  });
 
-        for (let task of hearken.tasks.tasks) {
-          if (task.name === 'hw') {
-            res = task.fn();
-            break;
-          }
-        }
+  afterEach(() => {
 
-        assert.deepEqual(res, 'Hello World!');
+    hearken = null;
 
-      });
+    clock.restore();
 
-    });
+  });
 
-    // Remove a task from Hearken.
-    describe('Remove Task', () => {
+  it('should have passed 8 seconds', () => {
 
-      it('should remove task test1 from the task queue', () => {
-        let hearken = new Hearken('15000');
+    hearken.start();
 
-        function hello() {
-          return 'Hello World!'
-        }
+    clock.tick(7000);
 
-        function add() {
-          return 2 + 5;
-        }
+    chai.expect(hearken.currentTime).to.equal(7000);
 
-        hearken.tasks.add('hello', 5000, hello).add('add', 1000, add);
+  });
 
-        hearken.tasks.remove('add');
+});
 
-        assert.deepEqual(hearken.tasks.tasks.size, 1);
-      });
+describe('Pausing the timer', () => {
 
-    });
+  beforeEach(() => {
 
-    // Remove all tasks from Hearken.
-    describe('Clear All Tasks', () => {
+    hearken = new Hearken(15000);
 
-      it('should remove all tasks', () => {
-        let hearken = new Hearken('15000');
+    clock = sinon.useFakeTimers();
 
-        function hello() {
-          return 'Hello World!'
-        }
+  });
 
-        function add() {
-          return 2 + 5;
-        }
+  afterEach(() => {
 
-        hearken.tasks.add('hello', 5000, hello).add('add', 1000, add);
+    hearken = null;
 
-        hearken.tasks.clear();
+    clock.restore();
 
-        assert.deepEqual(hearken.tasks.tasks.size, 0);
-      });
+  });
 
-    });
+  it('should pause the timer at 12 seconds', () => {
 
-    // Make sure that when a task is run, an event is emitted.
-    describe('Task Event', () => {
+    hearken.start();
 
-      beforeEach(() => {
-        this.clock = sinon.useFakeTimers();
-      });
+    clock.tick(2000);
 
-      afterEach(() => {
-        this.clock.restore();
-      });
+    hearken.pause();
 
-      it('should emit an event for the task at 5 seconds left', () => {
-        let hearken = new Hearken('10000');
-        let spy = sinon.spy();
+    chai.expect(hearken.currentTime).to.equal(12000);
 
-        function hello() {
-          return 'Hello World!'
-        }
+  });
 
-        hearken.tasks.add('hello', 5000, hello);
+  it('should emit an event on pause', () => {
 
-        hearken.on('task', spy);
+    const spy = sinon.spy();
 
-        hearken.start();
+    hearken.on('pause', spy);
 
-        this.clock.tick(4000);
+    hearken.start();
 
-        assert.deepEqual(spy.calledOnce, true);
-      });
+    clock.tick(2000);
 
-    });
+    hearken.pause();
+
+    chai.expect(spy.calledOnce).to.be.true;
+
+  })
+
+});
+
+describe('Resuming the timer from a paused state', () => {
+
+  beforeEach(() => {
+
+    hearken = new Hearken(15000);
+
+    clock = sinon.useFakeTimers();
+
+  });
+
+  afterEach(() => {
+
+    hearken = null;
+
+    clock.restore();
+
+  });
+
+  it('should resume the timer after being paused', () => {
+
+    hearken.start();
+
+    clock.tick(2000);
+
+    hearken.pause();
+
+    clock.tick(2000);
+
+    hearken.resume();
+
+    chai.expect(hearken.currentTime).to.equal(11000);
+
+  });
+
+  it('should emit an event on resume', () => {
+
+    const spy = sinon.spy();
+
+    hearken.on('resume', spy);
+
+    hearken.start();
+
+    clock.tick(2000);
+
+    hearken.pause();
+
+    clock.tick(2000);
+
+    hearken.resume();
+
+    chai.expect(spy.calledOnce).to.be.true;
+
+  })
+
+});
+
+describe('Stopping the timer', () => {
+
+  beforeEach(() => {
+
+    hearken = new Hearken(15000);
+
+    clock = sinon.useFakeTimers();
+
+  });
+
+  afterEach(() => {
+
+    hearken = null;
+
+    clock.restore();
+
+  });
+
+  it('should stop the timer', () => {
+
+    hearken.start();
+
+    clock.tick(2000);
+
+    hearken.stop();
+
+    chai.expect(hearken.timer).to.be.null;
+
+  });
+
+  it('should emit an event on stop', () => {
+
+    const spy = sinon.spy();
+
+    hearken.on('stop', spy);
+
+    hearken.start();
+
+    clock.tick(2000);
+
+    hearken.stop();
+
+    chai.expect(spy.calledOnce).to.be.true;
+
+  })
+
+});
+
+describe('Tasks', () => {
+
+  beforeEach(() => {
+
+    hearken = new Hearken(15000);
+
+    clock = sinon.useFakeTimers();
+
+  });
+
+  afterEach(() => {
+
+    hearken = null;
+
+    clock.restore();
+
+  });
+
+  it('run a task on an interval', () => {
+
+    function hello() {
+
+      return 'Hello World!';
+
+    }
+
+    const spy = sinon.spy(hello);
+
+    hearken.tasks.create('helloworld', 2000, spy, true);
+
+    hearken.start();
+
+    clock.tick(4000);
+
+    chai.expect(spy.calledTwice).to.be.true;
+
+  });
+
+  it('run a task once', () => {
+
+    function hello() {
+
+      return 'Hello World!';
+
+    }
+
+    const spy = sinon.spy(hello);
+
+    hearken.tasks.create('helloworld', 14000, spy);
+
+    hearken.start();
+
+    clock.tick(4000);
+
+    chai.expect(spy.calledOnce).to.be.true;
+
+  });
+
+  it('emit an event when a task is run', () => {
+
+    const spy = sinon.spy();
+
+    function hello() {
+
+      return 'Hello World!';
+
+    }
+
+    hearken.on('task', spy);
+
+    hearken.tasks.create('helloworld', 14000, hello);
+
+    hearken.start();
+
+    clock.tick(4000);
+
+    chai.expect(spy.calledOnce).to.be.true;
+
+  });
+
+  it('destroying a task', () => {
+
+    function hello() {
+
+      return 'Hello World!';
+
+    }
+
+    function hello2() {
+
+      return 'Hello World!';
+
+    }
+
+    hearken.tasks.create('helloworld', 2000, hello).create('helloworld2', 1000, hello2);
+
+    hearken.start();
+
+    clock.tick(2000);
+
+    hearken.tasks.destroy('helloworld2');
+
+    chai.expect(hearken.tasks._tasks.size).to.equal(1);
+
+  });
+
+  it('destroying all tasks', () => {
+
+    function hello() {
+
+      return 'Hello World!';
+
+    }
+
+    function hello2() {
+
+      return 'Hello World!';
+
+    }
+
+    hearken.tasks.create('helloworld', 2000, hello).create('helloworld2', 1000, hello2);
+
+    hearken.start();
+
+    clock.tick(2000);
+
+    hearken.tasks.destroyAll();
+
+    chai.expect(hearken.tasks._tasks.size).to.equal(0);
 
   });
 
