@@ -1,8 +1,9 @@
 {
   "name": "hearken",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "A self-adjusting countdown timer capable of carrying out tasks. Hearken tasks can be added at any point during operation through a simple API and they can be set to run just once or on an interval.",
   "main": "index.js",
+  "module": "hearken.js",
   "scripts": {
     "type-check": "tsc --noEmit",
     "type-check:watch": "npm run type-check -- --watch",
@@ -11,8 +12,7 @@
     "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --source-maps inline",
     "test": "node_modules/.bin/mocha",
     "bundle": "rollup -c",
-    "bundle:watch": "rollup -c --watch",
-    "prepublish": "npm run bundle && npm run build"
+    "bundle:watch": "rollup -c --watch"
   },
   "types": "lib/index.d.ts",
   "keywords": [
@@ -31,19 +31,19 @@
   "author": "Robert Corponoi",
   "license": "MIT",
   "devDependencies": {
-    "@babel/cli": "^7.4.4",
-    "@babel/core": "^7.4.5",
-    "@babel/plugin-proposal-class-properties": "^7.4.4",
-    "@babel/plugin-proposal-object-rest-spread": "^7.4.4",
-    "@babel/preset-env": "^7.4.5",
+    "@babel/cli": "^7.5.0",
+    "@babel/core": "^7.5.4",
+    "@babel/plugin-proposal-class-properties": "^7.5.0",
+    "@babel/plugin-proposal-object-rest-spread": "^7.5.4",
+    "@babel/preset-env": "^7.5.4",
     "@babel/preset-typescript": "^7.3.3",
     "chai": "^4.2.0",
     "mocha": "^6.1.4",
-    "rollup": "^1.14.5",
-    "rollup-plugin-babel": "^4.3.2",
-    "rollup-plugin-commonjs": "^10.0.0",
-    "rollup-plugin-node-resolve": "^5.0.1",
+    "rollup": "^1.17.0",
+    "rollup-plugin-babel": "^4.3.3",
+    "rollup-plugin-commonjs": "^10.0.1",
+    "rollup-plugin-node-resolve": "^5.2.0",
     "sinon": "^7.3.2",
-    "typescript": "^3.5.1"
+    "typescript": "^3.5.3"
   }
 }
