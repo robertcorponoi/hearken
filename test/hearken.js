@@ -225,7 +225,7 @@ describe('Stopping the timer', () => {
 
     hearken.stop();
 
-    chai.expect(hearken.timer).to.be.null;
+    chai.expect(hearken._timer).to.be.null;
 
   });
 
@@ -349,7 +349,7 @@ describe('Tasks', () => {
 
     hearken.tasks.destroy('helloworld2');
 
-    chai.expect(hearken.tasks._tasks.size).to.equal(1);
+    chai.expect(hearken.tasks._tasks.length).to.equal(1);
 
   });
 
@@ -375,7 +375,7 @@ describe('Tasks', () => {
 
     hearken.tasks.destroyAll();
 
-    chai.expect(hearken.tasks._tasks.size).to.equal(0);
+    chai.expect(hearken.tasks._tasks.length).to.equal(0);
 
   });
 

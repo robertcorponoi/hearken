@@ -1,8 +1,4 @@
-'use strict';
-
-function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
-
-var Events = _interopDefault(require('events'));
+import Events from 'events';
 
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
