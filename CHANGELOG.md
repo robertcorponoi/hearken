@@ -1,3 +1,7 @@
+## 3.1.0 / 2019-10-12
+=====================
+* [FEATURE] Converted to using Typescript + Babel + Rollup.
+
 ## 3.0.3 / 2019-10-12
 =====================
 * [FEATURE] Updated all dev dependencies.
