@@ -1,3 +1,7 @@
+## 3.0.3 / 2019-10-12
+=====================
+* [FEATURE] Updated all dev dependencies.
+
 ## 3.0.2 / 2019-07-17
 =====================
 * [HOTFIX] Updated all dev dependencies to their latest versions and fixed any security vulnerabilities found in them.
