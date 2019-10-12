@@ -1,6 +1,6 @@
 {
   "name": "hearken",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "description": "A self-adjusting countdown timer capable of carrying out tasks. Hearken tasks can be added at any point during operation through a simple API and they can be set to run just once or on an interval.",
   "main": "index.js",
   "module": "hearken.js",
@@ -31,19 +31,19 @@
   "author": "Robert Corponoi",
   "license": "MIT",
   "devDependencies": {
-    "@babel/cli": "^7.5.0",
-    "@babel/core": "^7.5.4",
-    "@babel/plugin-proposal-class-properties": "^7.5.0",
-    "@babel/plugin-proposal-object-rest-spread": "^7.5.4",
-    "@babel/preset-env": "^7.5.4",
-    "@babel/preset-typescript": "^7.3.3",
+    "@babel/cli": "^7.6.4",
+    "@babel/core": "^7.6.4",
+    "@babel/plugin-proposal-class-properties": "^7.5.5",
+    "@babel/plugin-proposal-object-rest-spread": "^7.6.2",
+    "@babel/preset-env": "^7.6.3",
+    "@babel/preset-typescript": "^7.6.0",
     "chai": "^4.2.0",
-    "mocha": "^6.1.4",
-    "rollup": "^1.17.0",
+    "mocha": "^6.2.1",
+    "rollup": "^1.23.1",
     "rollup-plugin-babel": "^4.3.3",
-    "rollup-plugin-commonjs": "^10.0.1",
+    "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0",
-    "sinon": "^7.3.2",
-    "typescript": "^3.5.3"
+    "sinon": "^7.5.0",
+    "typescript": "^3.6.4"
   }
 }
