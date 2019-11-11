@@ -53,13 +53,13 @@ export default class Task {
      *
      * @returns {string}
      */
-    readonly name: string;
+    get name(): string;
     /**
      * Returns the time this task is set to run at next.
      *
      * @returns {number}
      */
-    readonly time: number;
+    get time(): number;
     /**
      * Runs the callback method for this task.
      */
