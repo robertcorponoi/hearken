@@ -10,21 +10,20 @@ export default class TaskManager {
   /**
    * A reference to the Hearken timer instance.
    * 
-   * @property {Heaken}
-   * 
    * @private
+   * 
+   * @property {Heaken}
    */
-  _hearken: any;
-
+  private _hearken: any;
 
   /**
    * All of the tasks that have been created.
    * 
-   * @property {Array<Task>}
-   * 
    * @private
+   * 
+   * @property {Array<Task>}
    */
-  _tasks: Array<Task> = [];
+  private _tasks: Array<Task> = [];
 
   /**
    * @param {Hearken} hearken A reference to the Hearken instance.
@@ -96,15 +95,7 @@ export default class TaskManager {
 
         task.run();
 
-        this._hearken.emit('task', {
-
-          startTime: this._hearken.startTime,
-
-          currentTime: this._hearken.currentTime,
-
-          task: task
-
-        });
+        this._hearken.ontask.dispatch({ startTime: this._hearken.startTime, currentTime: this._hearken.currentTime, task: task });
 
         if (task.repeat) task.update(this._hearken.currentTime - task._time);
 

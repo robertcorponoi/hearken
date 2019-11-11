@@ -129,7 +129,7 @@ describe('Pausing the timer', () => {
 
     const spy = sinon.spy();
 
-    hearken.on('pause', spy);
+    hearken.onpause.add(spy);
 
     hearken.start();
 
@@ -181,7 +181,7 @@ describe('Resuming the timer from a paused state', () => {
 
     const spy = sinon.spy();
 
-    hearken.on('resume', spy);
+    hearken.onresume.add(spy);
 
     hearken.start();
 
@@ -233,7 +233,7 @@ describe('Stopping the timer', () => {
 
     const spy = sinon.spy();
 
-    hearken.on('stop', spy);
+    hearken.onstop.add(spy);
 
     hearken.start();
 
@@ -315,7 +315,7 @@ describe('Tasks', () => {
 
     }
 
-    hearken.on('task', spy);
+    hearken.ontask.add(spy);
 
     hearken.tasks.create('helloworld', 14000, hello);
 

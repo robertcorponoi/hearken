@@ -1,5 +1,3 @@
-import Events from 'events';
-
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
     throw new TypeError("Cannot call a class as a function");
@@ -37,52 +35,383 @@ function _defineProperty(obj, key, value) {
   return obj;
 }
 
-function _inherits(subClass, superClass) {
-  if (typeof superClass !== "function" && superClass !== null) {
-    throw new TypeError("Super expression must either be null or a function");
+function _classCallCheck$1(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
+
+var classCallCheck = _classCallCheck$1;
+
+function _defineProperties$1(target, props) {
+  for (var i = 0; i < props.length; i++) {
+    var descriptor = props[i];
+    descriptor.enumerable = descriptor.enumerable || false;
+    descriptor.configurable = true;
+    if ("value" in descriptor) descriptor.writable = true;
+    Object.defineProperty(target, descriptor.key, descriptor);
+  }
+}
+
+function _createClass$1(Constructor, protoProps, staticProps) {
+  if (protoProps) _defineProperties$1(Constructor.prototype, protoProps);
+  if (staticProps) _defineProperties$1(Constructor, staticProps);
+  return Constructor;
+}
+
+var createClass = _createClass$1;
+
+function _defineProperty$1(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
   }
 
-  subClass.prototype = Object.create(superClass && superClass.prototype, {
-    constructor: {
-      value: subClass,
-      writable: true,
-      configurable: true
+  return obj;
+}
+
+var defineProperty = _defineProperty$1;
+
+var Task =
+/*#__PURE__*/
+function () {
+  /**
+   * The method to be called when processing this task.
+   * 
+   * @property {Function}
+   */
+
+  /**
+   * Indicates whether this task will only run once before being deleted
+   * or not.
+   * 
+   * @property {boolean}
+   */
+
+  /**
+   * If true this indicates to Hypergiant that it needs to be deleted on the
+   * next pass.
+   * 
+   * @property {boolean}
+   */
+
+  /**
+   * The number of times that this task has been called.
+   * 
+   * @property {number}
+   */
+
+  /**
+   * Indicates whether this task is currently paused or not.
+   * 
+   * @property {boolean}
+   */
+
+  /**
+   * @param {Function} fn The method to attach to this task.
+   * @param {boolean} once Indicates whether this task will only run once before being deleted or not.
+   */
+  function Task(fn, once) {
+    classCallCheck(this, Task);
+
+    defineProperty(this, "fn", void 0);
+
+    defineProperty(this, "once", void 0);
+
+    defineProperty(this, "delete", false);
+
+    defineProperty(this, "timesCalled", 0);
+
+    defineProperty(this, "paused", false);
+
+    this.fn = fn;
+    this.once = once;
+  }
+  /**
+   * Runs the method associated with this task.
+   * 
+   * @param {...*} args Any other data that should be passed to this task.
+   */
+
+
+  createClass(Task, [{
+    key: "run",
+    value: function run() {
+      if (this.paused) return;
+      this.fn.apply(this, arguments);
+      this.timesCalled++;
+      if (this.once) this["delete"] = true;
     }
-  });
-  if (superClass) _setPrototypeOf(subClass, superClass);
-}
+  }]);
 
-function _getPrototypeOf(o) {
-  _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
-    return o.__proto__ || Object.getPrototypeOf(o);
-  };
-  return _getPrototypeOf(o);
-}
+  return Task;
+}();
 
-function _setPrototypeOf(o, p) {
-  _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
-    o.__proto__ = p;
-    return o;
-  };
+/**
+ * Hypergiant is used to create signals that run a task when emitted.
+ *
+ * One of the biggest advtantages that signals have over native JavaScript events is that they don't rely 
+ * on correct typing.
+ */
 
-  return _setPrototypeOf(o, p);
-}
+var Hypergiant =
+/*#__PURE__*/
+function () {
+  function Hypergiant() {
+    classCallCheck(this, Hypergiant);
 
-function _assertThisInitialized(self) {
-  if (self === void 0) {
-    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    defineProperty(this, "tasks", new Set());
   }
 
-  return self;
-}
+  createClass(Hypergiant, [{
+    key: "add",
 
-function _possibleConstructorReturn(self, call) {
-  if (call && (typeof call === "object" || typeof call === "function")) {
-    return call;
-  }
+    /**
+     * Add a new signal.
+     * 
+     * @param {Function} fn The method that should be called when the signal is dispatched.
+     * @param {boolean} [once=false] Indicates whether this signal should only be dispatched once and then deleted.
+     * 
+     * @returns {Hypergiant} Returns this for chaining.
+     */
+    value: function add(fn) {
+      var once = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+      this.tasks.add(new Task(fn, once));
+      return this;
+    }
+    /**
+     * Dispatch this Hypergiant event and run all of the tasks associated
+     * with it along with any data passed to it.
+     * 
+     * @param {...*} args Any other data that should be passed to the tasks associated with this Hypergiant instance.
+     */
 
-  return _assertThisInitialized(self);
-}
+  }, {
+    key: "dispatch",
+    value: function dispatch() {
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
+
+      try {
+        for (var _iterator = this.tasks[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var task = _step.value;
+          task.run.apply(task, arguments);
+          if (task["delete"]) this.tasks["delete"](task);
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator["return"] != null) {
+            _iterator["return"]();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
+      }
+    }
+    /**
+     * Removes a task from this signal by name.
+     *
+     * @param {Function} task The task to remove.
+     *
+     * @returns {Hypergiant} Returns this for chaining.
+     */
+
+  }, {
+    key: "remove",
+    value: function remove(fn) {
+      var fnToString = fn.toString();
+      var _iteratorNormalCompletion2 = true;
+      var _didIteratorError2 = false;
+      var _iteratorError2 = undefined;
+
+      try {
+        for (var _iterator2 = this.tasks[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+          var task = _step2.value;
+          var taskFnToString = task.fn.toString();
+
+          if (fnToString === taskFnToString) {
+            this.tasks["delete"](task);
+            break;
+          }
+        }
+      } catch (err) {
+        _didIteratorError2 = true;
+        _iteratorError2 = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion2 && _iterator2["return"] != null) {
+            _iterator2["return"]();
+          }
+        } finally {
+          if (_didIteratorError2) {
+            throw _iteratorError2;
+          }
+        }
+      }
+
+      return this;
+    }
+    /**
+     * Removes all tasks from this signal.
+     *
+     * @returns {Hypergiant} Returns this for chaining.
+     */
+
+  }, {
+    key: "removeAll",
+    value: function removeAll() {
+      this.tasks.clear();
+      return this;
+    }
+    /**
+     * Pauses a task attached to this signal until it is unpaused.
+     * 
+     * This means that the paused task will not be called and just be silent until the `enable` method is called
+     * on it returning it back to its normal state.
+     * 
+     * @param {Function} task The task to pause.
+     * 
+     * @returns {Hypergiant} Returns this for chaining.
+     */
+
+  }, {
+    key: "pause",
+    value: function pause(fn) {
+      var fnToString = fn.toString();
+      var _iteratorNormalCompletion3 = true;
+      var _didIteratorError3 = false;
+      var _iteratorError3 = undefined;
+
+      try {
+        for (var _iterator3 = this.tasks[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+          var task = _step3.value;
+          var taskFnToString = task.fn.toString();
+
+          if (!task.paused && fnToString === taskFnToString) {
+            task.paused = true;
+            break;
+          }
+        }
+      } catch (err) {
+        _didIteratorError3 = true;
+        _iteratorError3 = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion3 && _iterator3["return"] != null) {
+            _iterator3["return"]();
+          }
+        } finally {
+          if (_didIteratorError3) {
+            throw _iteratorError3;
+          }
+        }
+      }
+
+      return this;
+    }
+    /**
+     * Resumes a task from a paused state.
+     * 
+     * @param {Function} task The paused task.
+     * 
+     * @returns {Hypergiant} Returns this for chaining.
+     */
+
+  }, {
+    key: "resume",
+    value: function resume(fn) {
+      var fnToString = fn.toString();
+      var _iteratorNormalCompletion4 = true;
+      var _didIteratorError4 = false;
+      var _iteratorError4 = undefined;
+
+      try {
+        for (var _iterator4 = this.tasks[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+          var task = _step4.value;
+          var taskFnToString = task.fn.toString();
+
+          if (task.paused && fnToString === taskFnToString) {
+            task.paused = false;
+            break;
+          }
+        }
+      } catch (err) {
+        _didIteratorError4 = true;
+        _iteratorError4 = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion4 && _iterator4["return"] != null) {
+            _iterator4["return"]();
+          }
+        } finally {
+          if (_didIteratorError4) {
+            throw _iteratorError4;
+          }
+        }
+      }
+
+      return this;
+    }
+    /**
+     * Makes a task a noop function.
+     * 
+     * @param {Function} task The task to make noop.
+     * 
+     * @returns {Hypergiant} Returns this for chaining.
+     */
+
+  }, {
+    key: "noop",
+    value: function noop(fn) {
+      var fnToString = fn.toString();
+      var _iteratorNormalCompletion5 = true;
+      var _didIteratorError5 = false;
+      var _iteratorError5 = undefined;
+
+      try {
+        for (var _iterator5 = this.tasks[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+          var task = _step5.value;
+          var taskFnToString = task.fn.toString();
+
+          if (fnToString === taskFnToString) {
+            task.fn = function () {};
+
+            break;
+          }
+        }
+      } catch (err) {
+        _didIteratorError5 = true;
+        _iteratorError5 = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion5 && _iterator5["return"] != null) {
+            _iterator5["return"]();
+          }
+        } finally {
+          if (_didIteratorError5) {
+            throw _iteratorError5;
+          }
+        }
+      }
+
+      return this;
+    }
+  }]);
+
+  return Hypergiant;
+}();
 
 /**
  * Automatically try to determine what type of time the input is and run the conversion
@@ -108,8 +437,6 @@ function auto(time) {
 }
 /**
  * Convert a time value from milliseconds to a 'hh:mm:ss' format.
- * 
- * @since 2.0.0
  * 
  * @param {number|string} ms The time might be in milliseconds but it could still be in a string.
  * 
@@ -169,7 +496,7 @@ var pad = function pad(n) {
   return n;
 };
 
-var Task =
+var Task$1 =
 /*#__PURE__*/
 function () {
   /**
@@ -293,17 +620,17 @@ function () {
   /**
    * A reference to the Hearken timer instance.
    * 
-   * @property {Heaken}
-   * 
    * @private
+   * 
+   * @property {Heaken}
    */
 
   /**
    * All of the tasks that have been created.
    * 
-   * @property {Array<Task>}
-   * 
    * @private
+   * 
+   * @property {Array<Task>}
    */
 
   /**
@@ -334,7 +661,7 @@ function () {
     key: "create",
     value: function create(name, time, cb) {
       var repeat = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
-      var task = new Task(name, time, cb, repeat);
+      var task = new Task$1(name, time, cb, repeat);
       if (repeat) task.update(this._hearken.currentTime - task._time);
 
       this._tasks.push(task);
@@ -389,7 +716,7 @@ function () {
           if (task.runAt === _this._hearken.currentTime) {
             task.run();
 
-            _this._hearken.emit('task', {
+            _this._hearken.ontask.dispatch({
               startTime: _this._hearken.startTime,
               currentTime: _this._hearken.currentTime,
               task: task
@@ -431,31 +758,29 @@ var _temp;
 
 module.exports = (_temp =
 /*#__PURE__*/
-function (_Events$EventEmitter) {
-  _inherits(Hearken, _Events$EventEmitter);
-
+function () {
   /**
    * The start time of this instance.
    * 
-   * @property {number}
-   * 
    * @private
+   * 
+   * @property {number}
    */
 
   /**
    * The current time left on the timer.
    * 
-   * @property {number}
-   * 
    * @private
+   * 
+   * @property {number}
    */
 
   /**
    * The amount of time between ticks of the timer.
    * 
-   * @property {number}
-   * 
    * @private
+   * 
+   * @property {number}
    * 
    * @default 1000
    */
@@ -463,52 +788,87 @@ function (_Events$EventEmitter) {
   /**
    * When the timer is counting down, it checks this to make sure its still in step.
    * 
-   * @property {number}
-   * 
    * @private
+   * 
+   * @property {number}
    */
 
   /**
    * A reference to the task manager module.
    * 
-   * @property {TaskManager}
-   * 
    * @private
+   * 
+   * @property {TaskManager}
    */
 
   /**
    * The id of the setTimeout timer.
    * 
+   * @private
+   * 
    * @property {setTimeout}
+   */
+
+  /**
+   * The signal that is dispatched when the timer is paused.
    * 
    * @private
+   * 
+   * @property {Hypergiant}
+   */
+
+  /**
+   * The signal that is dispatched when the timer is resumed from a paused state.
+   * 
+   * @private
+   * 
+   * @property {Hypergiant}
+   */
+
+  /**
+   * The signal that is dispatched when the timer is stopped.
+   * 
+   * @private
+   * 
+   * @property {Hypergiant}
+   */
+
+  /**
+   * The signal that is dispatched when a task is run.
+   * 
+   * @private
+   * 
+   * @property {Hypergiant}
    */
 
   /**
    * @param {string|number} startTime The time that Hearken will start counting down from. This can be in milliseconds or a string in a '00:00:00' format.
    */
   function Hearken(startTime) {
-    var _this;
-
     _classCallCheck(this, Hearken);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Hearken).call(this));
+    _defineProperty(this, "_startTime", void 0);
 
-    _defineProperty(_assertThisInitialized(_this), "_startTime", void 0);
+    _defineProperty(this, "_currentTime", void 0);
 
-    _defineProperty(_assertThisInitialized(_this), "_currentTime", void 0);
+    _defineProperty(this, "_interval", 1000);
 
-    _defineProperty(_assertThisInitialized(_this), "_interval", 1000);
+    _defineProperty(this, "_expected", 0);
 
-    _defineProperty(_assertThisInitialized(_this), "_expected", 0);
+    _defineProperty(this, "tasks", new TaskManager(this));
 
-    _defineProperty(_assertThisInitialized(_this), "tasks", new TaskManager(_assertThisInitialized(_this)));
+    _defineProperty(this, "_timer", void 0);
 
-    _defineProperty(_assertThisInitialized(_this), "_timer", void 0);
+    _defineProperty(this, "_onpause", new Hypergiant());
 
-    _this._startTime = auto(startTime);
-    _this._currentTime = _this._startTime;
-    return _this;
+    _defineProperty(this, "_onresume", new Hypergiant());
+
+    _defineProperty(this, "_onstop", new Hypergiant());
+
+    _defineProperty(this, "_ontask", new Hypergiant());
+
+    this._startTime = auto(startTime);
+    this._currentTime = this._startTime;
   }
   /**
    * Returns the time left on the timer.
@@ -542,7 +902,7 @@ function (_Events$EventEmitter) {
   }, {
     key: "_tick",
     value: function _tick() {
-      var _this2 = this;
+      var _this = this;
 
       // Calculate any drift that might have occured.
       var drift = Date.now() - this._expected; // Woah, the drift is larger than the Hearken timer's interval we have to abandon ship.
@@ -562,7 +922,7 @@ function (_Events$EventEmitter) {
 
 
       this._timer = setTimeout(function () {
-        _this2._tick();
+        _this._tick();
       }, Math.max(0, this._interval - drift));
     }
     /**
@@ -581,7 +941,7 @@ function (_Events$EventEmitter) {
     key: "pause",
     value: function pause(reason) {
       clearTimeout(this._timer);
-      this.emit('pause', {
+      this.onpause.dispatch({
         startTime: this._startTime,
         currentTime: this._currentTime,
         reason: reason
@@ -601,7 +961,7 @@ function (_Events$EventEmitter) {
 
       this._tick();
 
-      this.emit('resume', {
+      this.onresume.dispatch({
         startTime: this._startTime,
         currentTime: this._currentTime
       });
@@ -621,7 +981,7 @@ function (_Events$EventEmitter) {
     value: function stop(reason) {
       clearTimeout(this._timer);
       this._timer = null;
-      this.emit('stop', {
+      this.onstop.dispatch({
         startTime: this._startTime,
         currentTime: this._currentTime,
         reason: reason
@@ -632,7 +992,51 @@ function (_Events$EventEmitter) {
     get: function get() {
       return this._currentTime;
     }
+    /**
+     * Returns the onpause signal.
+     * 
+     * @returns {Hypergiant}
+     */
+
+  }, {
+    key: "onpause",
+    get: function get() {
+      return this._onpause;
+    }
+    /**
+     * Returns the onresume signal.
+     * 
+     * @returns {Hypergiant}
+     */
+
+  }, {
+    key: "onresume",
+    get: function get() {
+      return this._onresume;
+    }
+    /**
+     * Returns the onstop signal.
+     * 
+     * @returns {Hypergiant}
+     */
+
+  }, {
+    key: "onstop",
+    get: function get() {
+      return this._onstop;
+    }
+    /**
+     * Returns the ontask signal.
+     * 
+     * @returns {Hypergiant}
+     */
+
+  }, {
+    key: "ontask",
+    get: function get() {
+      return this._ontask;
+    }
   }]);
 
   return Hearken;
-}(Events.EventEmitter), _temp);
+}(), _temp);
