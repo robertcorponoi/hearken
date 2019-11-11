@@ -1,38 +1,39 @@
 'use strict'
 
-import Events from 'events';
+import Hypergiant from 'hypergiant';
+
 import convert from './utils/convert';
 import TaskManager from './task/TaskManager';
 
 /**
  * Hearken is a self-adjusting countdown timer that can be configured to run tasks on an interval or just once.
  */
-module.exports = class Hearken extends Events.EventEmitter {
+module.exports = class Hearken {
 
   /**
    * The start time of this instance.
    * 
-   * @property {number}
-   * 
    * @private
+   * 
+   * @property {number}
    */
   private _startTime: any;
 
   /**
    * The current time left on the timer.
    * 
-   * @property {number}
-   * 
    * @private
+   * 
+   * @property {number}
    */
   private _currentTime: number;
 
   /**
    * The amount of time between ticks of the timer.
    * 
-   * @property {number}
-   * 
    * @private
+   * 
+   * @property {number}
    * 
    * @default 1000
    */
@@ -41,36 +42,70 @@ module.exports = class Hearken extends Events.EventEmitter {
   /**
    * When the timer is counting down, it checks this to make sure its still in step.
    * 
-   * @property {number}
-   * 
    * @private
+   * 
+   * @property {number}
    */
   private _expected: number = 0;
 
   /**
    * A reference to the task manager module.
    * 
-   * @property {TaskManager}
-   * 
    * @private
+   * 
+   * @property {TaskManager}
    */
   private tasks: TaskManager = new TaskManager(this);
 
   /**
    * The id of the setTimeout timer.
    * 
-   * @property {setTimeout}
-   * 
    * @private
+   * 
+   * @property {setTimeout}
    */
   private _timer: any;
+
+  /**
+   * The signal that is dispatched when the timer is paused.
+   * 
+   * @private
+   * 
+   * @property {Hypergiant}
+   */
+  private _onpause: Hypergiant = new Hypergiant();
+
+  /**
+   * The signal that is dispatched when the timer is resumed from a paused state.
+   * 
+   * @private
+   * 
+   * @property {Hypergiant}
+   */
+  private _onresume: Hypergiant = new Hypergiant();
+
+  /**
+   * The signal that is dispatched when the timer is stopped.
+   * 
+   * @private
+   * 
+   * @property {Hypergiant}
+   */
+  private _onstop: Hypergiant = new Hypergiant();
+
+  /**
+   * The signal that is dispatched when a task is run.
+   * 
+   * @private
+   * 
+   * @property {Hypergiant}
+   */
+  private _ontask: Hypergiant = new Hypergiant();
 
   /**
    * @param {string|number} startTime The time that Hearken will start counting down from. This can be in milliseconds or a string in a '00:00:00' format.
    */
   constructor(startTime: (string | number)) {
-
-    super();
 
     this._startTime = convert(startTime);
 
@@ -83,11 +118,35 @@ module.exports = class Hearken extends Events.EventEmitter {
    * 
    * @returns {number}
    */
-  get currentTime(): number {
+  get currentTime(): number { return this._currentTime; }
 
-    return this._currentTime;
+  /**
+   * Returns the onpause signal.
+   * 
+   * @returns {Hypergiant}
+   */
+  get onpause(): Hypergiant { return this._onpause; }
 
-  }
+  /**
+   * Returns the onresume signal.
+   * 
+   * @returns {Hypergiant}
+   */
+  get onresume(): Hypergiant { return this._onresume; }
+
+  /**
+   * Returns the onstop signal.
+   * 
+   * @returns {Hypergiant}
+   */
+  get onstop(): Hypergiant { return this._onstop; }
+
+  /**
+   * Returns the ontask signal.
+   * 
+   * @returns {Hypergiant}
+   */
+  get ontask(): Hypergiant { return this._ontask; }
 
   /**
    * Set the `expected` property and begin the `setTimeout` countdown.
@@ -158,7 +217,7 @@ module.exports = class Hearken extends Events.EventEmitter {
 
     clearTimeout(this._timer);
 
-    this.emit('pause', { startTime: this._startTime, currentTime: this._currentTime, reason: reason });
+    this.onpause.dispatch({ startTime: this._startTime, currentTime: this._currentTime, reason: reason });
 
   }
 
@@ -174,7 +233,7 @@ module.exports = class Hearken extends Events.EventEmitter {
 
     this._tick();
 
-    this.emit('resume', { startTime: this._startTime, currentTime: this._currentTime });
+    this.onresume.dispatch({ startTime: this._startTime, currentTime: this._currentTime });
 
   }
 
@@ -193,7 +252,7 @@ module.exports = class Hearken extends Events.EventEmitter {
 
     this._timer = null;
 
-    this.emit('stop', { startTime: this._startTime, currentTime: this._currentTime, reason: reason });
+    this.onstop.dispatch({ startTime: this._startTime, currentTime: this._currentTime, reason: reason });
 
   }
 

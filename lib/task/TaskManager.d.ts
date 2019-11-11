@@ -1,4 +1,3 @@
-import Task from './Task';
 /**
  * The Task Manager module is responsible for creating and removing tasks from the Hearken timer.
  */
@@ -6,19 +5,19 @@ export default class TaskManager {
     /**
      * A reference to the Hearken timer instance.
      *
-     * @property {Heaken}
-     *
      * @private
+     *
+     * @property {Heaken}
      */
-    _hearken: any;
+    private _hearken;
     /**
      * All of the tasks that have been created.
      *
-     * @property {Array<Task>}
-     *
      * @private
+     *
+     * @property {Array<Task>}
      */
-    _tasks: Array<Task>;
+    private _tasks;
     /**
      * @param {Hearken} hearken A reference to the Hearken instance.
      */

@@ -36,8 +36,6 @@ export default function auto(time: (number | string), ms: boolean = true): (numb
 /**
  * Convert a time value from milliseconds to a 'hh:mm:ss' format.
  * 
- * @since 2.0.0
- * 
  * @param {number|string} ms The time might be in milliseconds but it could still be in a string.
  * 
  * @returns {string} The time in 'hh:mm:ss' format.

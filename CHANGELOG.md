@@ -1,3 +1,8 @@
+4.0.0 / 2019-11-10
+=====================
+* [FEATURE] Switched from events to signals.
+* [MISC] Updated README to reflect API changes.
+
 3.1.1 / 2019-11-10
 =====================
 * Updated dependencies to their latest versions.

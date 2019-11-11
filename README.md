@@ -70,15 +70,15 @@ This reason will be emitted in the details when listening for the pause event.
 hearken.pause('Short break');
 ```
 
-This method emits an event which can be listened to like below:
+This method dispatches a signal which can be responded to like below:
 
 ```js
-hearken.on('pause', (data) => {
+hearken.onpause.add(onHearkenPause);
 
+function onHearkenPause(data) {
   // => { currentTime: 0000, elapsedTime: 0000, reason: 'Short break' }
   console.log(data);
-  
-});
+}
 ```
 
 ---
@@ -94,12 +94,12 @@ hearken.resume();
 This method emits an event which can be listened to like below:
 
 ```js
-hearken.on('resume', (data) => {
-  
+hearken.onresume.add(onHearkenResume);
+
+function onHearkenResume(data) {
   // => { currentTime: 0000, elapsedTime: 0000 }
   console.log(data);
-
-});
+}
 ```
 
 ---
@@ -123,12 +123,12 @@ hearken.stop('No longer needed');
 This method emits an event which can be listened to like below:
 
 ```js
-hearken.on('stop', (data) => {
+hearken.onstop.add(onHearkenStop);
 
+function onHearkenStop(data) {
   // => { currentTime: 0000, elapsedTime: 0000, reason: 'No longer needed' }
   console.log(data);
-  
-});
+}
 ```
 
 Also note that if you're listening to the stop event, it will emit when the timer reaches 0 with no reason.
@@ -144,12 +144,12 @@ Tasks will emit events that can be listened to when they are run.
 A task event can be listened for like below:
 
 ```js
-hearken.on('task', (data) => {
+hearken.ontask.add(onHearkenTask);
 
+function onHearkenTask(data) {
   // data contains the timer's start time, current time, and all of the task information.
   console.log(data);
-
-});
+}
 ```
 
 ### **tasks.add**
