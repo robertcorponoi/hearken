@@ -1,3 +1,7 @@
+4.0.1 / 2019-11-10
+=====================
+* [MISC] Added badges to README.
+
 4.0.0 / 2019-11-10
 =====================
 * [FEATURE] Switched from events to signals.

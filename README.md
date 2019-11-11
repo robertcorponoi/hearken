@@ -6,6 +6,17 @@
 
 <p align="center">Welcome to Hearken, a self-adjusting countdown timer capable of carrying out tasks. Hearken tasks can be added at any point during operation through a simple API and they can be set to run just once or on an interval.<p>
 
+<div align="center">
+
+[![NPM version](https://img.shields.io/npm/v/hearken.svg?style=flat)](https://www.npmjs.com/package/hearken)
+[![Known Vulnerabilities](https://snyk.io/test/github/robertcorponoi/hearken/badge.svg)](https://snyk.io/test/github/robertcorponoi/hearken)
+[![NPM downloads](https://img.shields.io/npm/dm/hearken.svg?style=flat)](https://www.npmjs.com/package/hearken)
+<a href="https://badge.fury.io/js/hearken"><img src="https://img.shields.io/github/issues/robertcorponoi/hearken.svg" alt="issues" height="18"></a>
+<a href="https://badge.fury.io/js/hearken"><img src="https://img.shields.io/github/license/robertcorponoi/hearken.svg" alt="license" height="18"></a>
+[![Gitter](https://badges.gitter.im/gitterHQ/gitter.svg)](https://gitter.im/robertcorponoi)
+
+</div>
+
 ## **Installation**
 
 To install this module through npm, simply use the following command:
