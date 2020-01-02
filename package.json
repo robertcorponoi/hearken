@@ -1,6 +1,6 @@
 {
   "name": "hearken",
-  "version": "4.1.0",
+  "version": "4.1.1",
   "description": "A self-adjusting countdown timer capable of carrying out tasks. Hearken tasks can be added at any point during operation through a simple API and they can be set to run just once or on an interval.",
   "main": "index.js",
   "module": "hearken.js",
