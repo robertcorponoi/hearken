@@ -1,3 +1,7 @@
+4.1.1 / 2020-01-01
+=====================
+* [MISC] Added more information about installation in README.
+
 4.1.0 / 2020-01-01
 =====================
 * [MISC] Removed logo file and added reference to the logo on the graphics repo.

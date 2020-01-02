@@ -28,10 +28,20 @@ $ npm install --save hearken
 
 ## **Basic Example**
 
-To begin using Hearken in your application, require the module:
+To begin using Hearken in your application, you can require the module if you're using it in Node:
 
 ```js
 const Hearken = require('hearken');
+```
+
+or you can use it on the browser like so:
+
+```js
+// Browser
+import Hearken from 'node_modules/hearken/hearken.js';
+
+// Webpack
+import Hearken from 'hearken';
 ```
 
 Then create a new instance of a Hearken timer and specify the time that it should start counting down from in one of two ways, either in milliseconds or in a string format like '00:00:05'.
