@@ -1,3 +1,10 @@
+4.1.0 / 2020-01-01
+=====================
+* [MISC] Removed logo file and added reference to the logo on the graphics repo.
+* [MISC] Updated all dependencies to their latest versions.
+* [MISC] Changed license year to reflect new year.
+* [MISC] Added badges to README.
+
 4.0.1 / 2019-11-10
 =====================
 * [MISC] Added badges to README.

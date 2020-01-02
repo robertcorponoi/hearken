@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="250" height="250" src="./hearken.png">
+  <img width="250" height="250" src="https://github.com/robertcorponoi/graphics/blob/master/hearken/hearken-logo.png?raw=true">
 </p>
 
 <h1 align="center">Hearken</h1>
@@ -8,12 +8,13 @@
 
 <div align="center">
 
-[![NPM version](https://img.shields.io/npm/v/hearken.svg?style=flat)](https://www.npmjs.com/package/hearken)
-[![Known Vulnerabilities](https://snyk.io/test/github/robertcorponoi/hearken/badge.svg)](https://snyk.io/test/github/robertcorponoi/hearken)
-[![NPM downloads](https://img.shields.io/npm/dm/hearken.svg?style=flat)](https://www.npmjs.com/package/hearken)
-<a href="https://badge.fury.io/js/hearken"><img src="https://img.shields.io/github/issues/robertcorponoi/hearken.svg" alt="issues" height="18"></a>
-<a href="https://badge.fury.io/js/hearken"><img src="https://img.shields.io/github/license/robertcorponoi/hearken.svg" alt="license" height="18"></a>
-[![Gitter](https://badges.gitter.im/gitterHQ/gitter.svg)](https://gitter.im/robertcorponoi)
+  [![NPM version](https://img.shields.io/npm/v/hearken.svg?style=flat)](https://www.npmjs.com/package/hearken)
+  [![Known Vulnerabilities](https://snyk.io/test/github/robertcorponoi/hearken/badge.svg)](https://snyk.io/test/github/robertcorponoi/hearken)
+  ![npm](https://img.shields.io/npm/dt/hearken)
+  [![NPM downloads](https://img.shields.io/npm/dm/hearken.svg?style=flat)](https://www.npmjs.com/package/hearken)
+  <a href="https://badge.fury.io/js/hearken"><img src="https://img.shields.io/github/issues/robertcorponoi/hearken.svg" alt="issues" height="18"></a>
+  <a href="https://badge.fury.io/js/hearken"><img src="https://img.shields.io/github/license/robertcorponoi/hearken.svg" alt="license" height="18"></a>
+  [![Gitter](https://badges.gitter.im/gitterHQ/gitter.svg)](https://gitter.im/robertcorponoi)
 
 </div>
 
